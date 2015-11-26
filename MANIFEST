@@ -6,6 +6,16 @@ META.json
 t/001_load.t
 t/010_basic.t
 t/apps/base.psgi
+t/lib/DBGp/Client/Parser.pm
+t/lib/DBGp/Client/Response/Error.pm
+t/lib/DBGp/Client/Response/Eval.pm
+t/lib/DBGp/Client/Response/Init.pm
+t/lib/DBGp/Client/Response/Property.pm
+t/lib/DBGp/Client/Response/Simple.pm
+t/lib/DBGp/Client/Response/StackGet.pm
+t/lib/DBGp/Client/Response/Step.pm
+t/lib/DBGp/Client/Response/Typemap.pm
+t/lib/DBGp/Client/Stream.pm
 t/lib/Test.pm
 t/scripts/curl.pl
 t/scripts/plackup.pl

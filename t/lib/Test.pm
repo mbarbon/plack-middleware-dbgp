@@ -9,8 +9,6 @@ BEGIN {
     die "\$ENV{REMOTE_DEBUGGER} not set" unless $ENV{REMOTE_DEBUGGER};
     die "\$ENV{REMOTE_DEBUGGER} not set correctly" unless
         -f "$ENV{REMOTE_DEBUGGER}/perl5db.pl";
-
-    use lib "$ENV{REMOTE_DEBUGGER}/t/lib";
 }
 
 use Test::More;
