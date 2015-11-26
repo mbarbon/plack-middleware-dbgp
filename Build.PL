@@ -15,7 +15,9 @@ my $build = Module::Build->new(
         'Module::Build' => 0.42,
     },
     test_requires => {
-        'Test::Differences' => 0,
+        'Test::Differences'         => 0,
+        'XML::Parser'               => 0,
+        'XML::Parser::EasyTree'     => 0,
     },
 );
 $build->create_build_script;
