@@ -6,6 +6,15 @@ use warnings;
 use parent 'Test::Builder::Module';
 
 BEGIN {
+    if (!$ENV{REMOTE_DEBUGGER}) {
+        for my $dir (@INC) {
+            if (-f "$dir/dbgp-helper/perl5db.pl") {
+                $ENV{REMOTE_DEBUGGER} = "$dir/dbgp-helper";
+                last;
+            }
+        }
+    }
+
     die "\$ENV{REMOTE_DEBUGGER} not set" unless $ENV{REMOTE_DEBUGGER};
     die "\$ENV{REMOTE_DEBUGGER} not set correctly" unless
         -f "$ENV{REMOTE_DEBUGGER}/perl5db.pl";
