@@ -6,7 +6,6 @@ use MIME::Base64 qw(encode_base64);
 
 start_listening();
 run_app('t/apps/base.psgi');
-discard_connection(); # startup connection
 send_request('/?name=debugger');
 wait_connection();
 

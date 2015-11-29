@@ -53,6 +53,9 @@ sub import {
 
     $args{komodo_debug_client_path} // die "Parameter 'komodo_debug_client_path' is mandatory";
 
+    my $common_options = sprintf 'ConnectAtStart=%s Xdebug=1',
+        ($args{debug_startup} ? 1 : 0);
+
     if (!$args{remote_host}) {
         for my $required (qw(user client_dir client_socket)) {
             $args{$required} // die "Parameter '$required' is mandatory unless 'remote_host' is used";
@@ -88,9 +91,9 @@ EOT
             exit 1;
         }
 
-        $ENV{PERLDB_OPTS} = sprintf 'RemotePath=%s Xdebug=1', $args{client_socket};
+        $ENV{PERLDB_OPTS} = sprintf 'RemotePath=%s %s', $args{client_socket}, $common_options;
     } else {
-        $ENV{PERLDB_OPTS} = sprintf 'RemotePort=%s Xdebug=1', $args{remote_host};
+        $ENV{PERLDB_OPTS} = sprintf 'RemotePort=%s %s', $args{remote_host}, $common_options;
     }
 
     unshift @INC, $args{komodo_debug_client_path};
@@ -108,9 +111,6 @@ EOT
     require Plack::Util;
 
     @ISA = qw(Plack::Middleware);
-
-    _set_enabled(!!$args{debug_startup});
-    DB::disconnect() unless $args{debug_startup};
 }
 
 sub reopen_dbgp_connection {
