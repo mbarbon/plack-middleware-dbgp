@@ -28,6 +28,8 @@ use constant {
 
 our @ISA;
 
+my ($autostart, $cookie_expiration);
+
 # Unable to connect to Unix socket: /var/run/dbgp/uwsgi (No such file or directory)
 # Running program outside the debugger...
 sub _trap_connection_warnings {
@@ -42,6 +44,9 @@ sub import {
     my ($class, %args) = @_;
 
     $args{komodo_debug_client_path} // die "Parameter 'komodo_debug_client_path' is mandatory";
+
+    $autostart = $args{autostart} // 1;
+    $cookie_expiration = $args{cookie_expiration} // 3600;
 
     my %options = (
           Xdebug         => 1,
@@ -100,6 +105,8 @@ EOT
     $^P = DEBUG_PREPARE_FLAGS;
 
     require Plack::Middleware;
+    require Plack::Request;
+    require Plack::Response;
     require Plack::Util;
 
     @ISA = qw(Plack::Middleware);
@@ -123,14 +130,55 @@ sub close_dbgp_connection {
 sub call {
     my($self, $env) = @_;
 
-    reopen_dbgp_connection();
+    my ($stop_session, $start_session, $debug_idekey);
+    if ($autostart) {
+        reopen_dbgp_connection();
+    } else {
+        my $req = Plack::Request->new($env);
+        my $params = $req->parameters;
+        my $cookies = $req->cookies;
+        my $debug;
+
+        if (exists $params->{XDEBUG_SESSION_STOP}) {
+            $stop_session = 1;
+        } elsif (exists $params->{XDEBUG_SESSION_START}) {
+            $debug_idekey = $params->{XDEBUG_SESSION_START};
+            $debug = $start_session = 1;
+        } elsif (exists $cookies->{XDEBUG_SESSION}) {
+            $debug_idekey = $cookies->{XDEBUG_SESSION};
+            $debug = 1;
+        }
+
+        if ($debug) {
+            $ENV{DBGP_IDEKEY} = $debug_idekey;
+            reopen_dbgp_connection();
+        }
+    }
 
     my $res = $self->app->($env);
+
+    if ($start_session || $stop_session) {
+        $res = Plack::Response->new(@$res);
+
+        if ($start_session) {
+            $res->cookies->{XDEBUG_SESSION} = {
+                value   => $debug_idekey,
+                expires => time + $cookie_expiration,
+            };
+        } elsif ($stop_session) {
+            $res->cookies->{XDEBUG_SESSION} = {
+                value   => undef,
+                expires => time - 24 * 60 * 60,
+            };
+        }
+
+        $res = $res->finalize;
+    }
 
     Plack::Util::response_cb($res, sub {
         return sub {
             # use $_[0] to try to avoid a copy
-            if (!defined $_[0]) {
+            if (!defined $_[0] && DB::isConnected()) {
                 close_dbgp_connection();
             }
 

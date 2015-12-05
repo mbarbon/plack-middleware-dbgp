@@ -18,6 +18,7 @@ my $build = Module::Build->new(
         'Test::Differences'         => 0,
         'XML::Parser'               => 0,
         'XML::Parser::EasyTree'     => 0,
+        'HTTP::CookieJar'           => 0,
     },
 );
 $build->create_build_script;

@@ -6,8 +6,10 @@ META.yml
 META.json
 t/001_load.t
 t/010_basic.t
+t/050_session.t
 t/apps/base.psgi
 t/apps/lib/App/Base.pm
+t/apps/session.psgi
 t/lib/DBGp/Client/Parser.pm
 t/lib/DBGp/Client/Response/ContextGet.pm
 t/lib/DBGp/Client/Response/Error.pm

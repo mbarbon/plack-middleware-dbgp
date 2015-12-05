@@ -37,6 +37,7 @@ BEGIN {
 }
 
 use Test::Differences;
+use HTTP::CookieJar;
 
 use IO::Socket::INET;
 use IPC::Open3 ();
@@ -158,19 +159,20 @@ sub wait_app {
 }
 
 sub send_request {
-    my ($path) = @_;
+    my ($path, $cookie) = @_;
 
     wait_app();
     $REQ_ERR = gensym;
     $REQ_PID = IPC::Open3::open3(
         my $req_in, $REQ_OUT, $REQ_ERR,
         $^X, 't/scripts/curl.pl', "http://localhost:$HTTP_PORT$path",
+        (($cookie) x !!defined $cookie),
     );
 }
 
 sub response_is {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my ($content) = @_;
+    my ($content, $cookie) = @_;
 
     die "No pending request" unless $REQ_PID;
     waitpid $REQ_PID, 0;
@@ -195,7 +197,26 @@ sub response_is {
             note($res->{content});
             fail("Response is a failure");
         } else {
-            is($res->{content}, $content);
+            is($res->{content}, $content, 'response content matches');
+
+            if ($cookie) {
+                my $header = $res->{headers}{'set-cookie'} // '';
+                my ($value) = split /;/, $header;
+
+                is($value, $cookie->{value}, '  cookie value matches');
+
+                if (exists $cookie->{expires}) {
+                    my $jar = HTTP::CookieJar->new;
+                    $jar->add("http://localhost:$HTTP_PORT/", $header)
+                        or die "Failed to process header";
+                    my ($res_cookie) = $jar->cookies_for("http://localhost:$HTTP_PORT/");
+                    if ($cookie->{expires} == -1) {
+                        is($res_cookie, undef, '  cookie is expired');
+                    } else {
+                        cmp_ok(abs($res_cookie->{expires} - time - $cookie->{expires}), '<', 10, '  cookie expiration time is (approximately) as expected');
+                    }
+                }
+            }
         }
     }
 }
