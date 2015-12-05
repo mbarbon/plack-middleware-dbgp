@@ -12,17 +12,9 @@ use warnings;
 our $VERSION = '0.02';
 
 use constant {
-    DEBUG_SUB_ENTER_EXIT        =>   0x1,
-    DEBUG_LINE_BY_LINE          =>   0x2,
-    DEBUG_OPTIMIZATION_OFF      =>   0x4,
-    DEBUG_PRESERVE_DATA         =>   0x8,
-    DEBUG_SUB_DEFINITION_LINE   =>  0x10,
     DEBUG_SINGLE_STEP_ON        =>  0x20,
     DEBUG_USE_SUB_ADDRESS       =>  0x40,
     DEBUG_REPORT_GOTO           =>  0x80,
-    DEBUG_EVAL_FILE_NAME        => 0x100,
-    DEBUG_ANONSUB_FILE_NAME     => 0x200,
-    DEBUG_SAVE_SOURCE_CODE      => 0x400,
     DEBUG_ALL                   => 0x7ff,
 };
 
@@ -35,8 +27,6 @@ use constant {
 };
 
 our @ISA;
-
-my (%ORIG_DB_SUB, %DISABLED_DB_SUB);
 
 # Unable to connect to Unix socket: /var/run/dbgp/uwsgi (No such file or directory)
 # Running program outside the debugger...
@@ -100,10 +90,6 @@ EOT
     {
         local $SIG{__WARN__} = \&_trap_connection_warnings;
         require 'perl5db.pl';
-        %ORIG_DB_SUB = %DISABLED_DB_SUB = map {
-            ($_ => *DB::sub{$_}) x !!*DB::sub{$_}
-        } qw(CODE SCALAR ARRAY HASH);
-        delete $DISABLED_DB_SUB{CODE};
     }
     $^P = DEBUG_PREPARE_FLAGS;
 
@@ -116,30 +102,16 @@ EOT
 sub reopen_dbgp_connection {
     local $SIG{__WARN__} = \&_trap_connection_warnings;
     DB::connectOrReconnect();
-    _set_enabled(1) if DB::isConnected();
+    DB::enable() if DB::isConnected();
 }
 
 sub close_dbgp_connection {
     DB::answerLastContinuationCommand('stopped');
     DB::disconnect();
-    _set_enabled(0);
+    DB::disable();
     # this works around uWSGI bug fixed by
     # https://github.com/unbit/uwsgi/commit/c6f61719106908b82ba2714fd9d2836fb1c27f22
     $^P = DEBUG_OFF;
-}
-
-sub _set_enabled {
-    if ($_[0]) {
-        $DB::single = 1;
-        $^P = DEBUG_DEFAULT_FLAGS;
-        undef *DB::sub;
-        *DB::sub = $ORIG_DB_SUB{$_} for keys %ORIG_DB_SUB;
-    } else {
-        $DB::single = 0;
-        $^P = DEBUG_PREPARE_FLAGS;
-        undef *DB::sub;
-        *DB::sub = $DISABLED_DB_SUB{$_} for keys %DISABLED_DB_SUB;
-    }
 }
 
 sub call {
