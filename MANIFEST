@@ -9,6 +9,7 @@ t/010_basic.t
 t/apps/base.psgi
 t/apps/lib/App/Base.pm
 t/lib/DBGp/Client/Parser.pm
+t/lib/DBGp/Client/Response/ContextGet.pm
 t/lib/DBGp/Client/Response/Error.pm
 t/lib/DBGp/Client/Response/Eval.pm
 t/lib/DBGp/Client/Response/Init.pm

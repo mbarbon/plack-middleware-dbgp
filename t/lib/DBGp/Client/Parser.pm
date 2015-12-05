@@ -12,6 +12,7 @@ use DBGp::Client::Response::Step;
 use DBGp::Client::Response::StackGet;
 use DBGp::Client::Response::Eval;
 use DBGp::Client::Response::Typemap;
+use DBGp::Client::Response::ContextGet;
 
 my $parser = XML::Parser->new(Style => 'EasyTree');
 
@@ -56,7 +57,7 @@ sub parse {
 
         my $cmd = $root->{attrib}{command};
 
-        if ($cmd eq 'step_into' || $cmd eq 'step_over' ||
+        if ($cmd eq 'step_into' || $cmd eq 'step_over' || $cmd eq 'run' ||
                 $cmd eq 'step_out' || $cmd eq 'detach' || $cmd eq 'stop') {
             return bless $root, 'DBGp::Client::Response::Step';
         } elsif ($cmd eq 'stack_get') {
@@ -65,6 +66,8 @@ sub parse {
             return bless $root, 'DBGp::Client::Response::Eval';
         } elsif ($cmd eq 'typemap_get') {
             return bless $root, 'DBGp::Client::Response::Typemap';
+        } elsif ($cmd eq 'context_get') {
+            return bless $root, 'DBGp::Client::Response::ContextGet';
         } else {
             require Data::Dumper;
 
