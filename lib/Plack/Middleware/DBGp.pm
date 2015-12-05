@@ -43,8 +43,10 @@ sub import {
 
     $args{komodo_debug_client_path} // die "Parameter 'komodo_debug_client_path' is mandatory";
 
-    my $common_options = sprintf 'ConnectAtStart=%s Xdebug=1',
-        ($args{debug_startup} ? 1 : 0);
+    my %options = (
+          Xdebug         => 1,
+          ConnectAtStart => ($args{debug_startup} ? 1 : 0),
+    );
 
     if (!$args{remote_host}) {
         for my $required (qw(user client_dir client_socket)) {
@@ -81,10 +83,14 @@ EOT
             exit 1;
         }
 
-        $ENV{PERLDB_OPTS} = sprintf 'RemotePath=%s %s', $args{client_socket}, $common_options;
+        $options{RemotePath} = $args{client_socket};
     } else {
-        $ENV{PERLDB_OPTS} = sprintf 'RemotePort=%s %s', $args{remote_host}, $common_options;
+        $options{RemotePort} = $args{remote_host};
     }
+
+    $ENV{PERLDB_OPTS} =
+        join " ", map +(sprintf "%s=%s", $_, $options{$_}),
+                      sort keys %options;
 
     unshift @INC, $args{komodo_debug_client_path};
     {
