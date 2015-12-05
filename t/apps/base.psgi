@@ -4,7 +4,6 @@ use Plack::Middleware::DBGp (
 );
 use lib 't/apps/lib';
 use Plack::Builder;
-use Plack::Request;
 use App::Base;
 
 builder {

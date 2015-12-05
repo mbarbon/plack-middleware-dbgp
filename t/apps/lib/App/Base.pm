@@ -3,6 +3,8 @@ package App::Base;
 use strict;
 use warnings;
 
+use Plack::Request;
+
 sub app {
     my ($env) = @_;
     my $req = Plack::Request->new($env);
