@@ -55,6 +55,7 @@ sub import {
 
     my %options = (
           Xdebug         => 1,
+          KeepRunning    => 1,
           ConnectAtStart => ($args{debug_startup} ? 1 : 0),
         ( LogFile        => $args{log_path} ) x !!$args{log_path},
     );
