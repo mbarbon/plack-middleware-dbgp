@@ -9,7 +9,7 @@ Plack::Middleware::DBGp - interactive debugging for Plack applications
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use constant {
     DEBUG_SINGLE_STEP_ON        =>  0x20,

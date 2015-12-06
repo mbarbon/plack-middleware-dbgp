@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-DBGp
 
+0.04      2015-12-06 23:01:05 CET
+
+    - Skip Enbugger test when Enbugger is not installed
+
 0.03      2015-12-06 20:12:53 CET
 
     - Add Xdebug-compatible XDEBUG_SESSION cookie and
