@@ -17,7 +17,7 @@ command_is(['run'], {
     status  => 'stopped',
     command => 'run',
 });
-response_is('Enabled: 1', { value => 'XDEBUG_SESSION=test_session_1', expires => 3600 });
+response_is('Enabled: 1', { value => 'XDEBUG_SESSION=test_session_1', expires => 1800 });
 
 send_request('/', 'XDEBUG_SESSION=test_session_2');
 wait_connection();

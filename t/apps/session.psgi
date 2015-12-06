@@ -3,6 +3,7 @@ use Plack::Middleware::DBGp (
     remote_host              => "localhost:" . ($ENV{DEBUGGER_PORT} // 9000),
     autostart                => 0,
     ide_key                  => 'dbgp_test',
+    cookie_expiration        => 1800,
 );
 use Plack::Builder;
 
