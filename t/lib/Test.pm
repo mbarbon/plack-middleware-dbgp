@@ -54,6 +54,7 @@ our @EXPORT = (
         wait_app
         send_command
         command_is
+        init_is
         eval_value_is
         start_listening
         stop_listening
@@ -251,6 +252,15 @@ sub send_command {
         if $res && $res->transaction_id != $SEQ;
 
     return $res;
+}
+
+sub init_is {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    my ($expected) = @_;
+    my $cmp = _extract_command_data($INIT, $expected);
+
+    eq_or_diff($cmp, $expected);
 }
 
 sub command_is {

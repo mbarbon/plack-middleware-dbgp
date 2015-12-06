@@ -9,6 +9,10 @@ run_app('t/apps/base.psgi');
 send_request('/?name=debugger');
 wait_connection();
 
+init_is({
+    idekey => 'dbgp_test',
+});
+
 command_is(['eval', encode_base64('$env->{"QUERY_STRING"}')], {
     command => 'eval',
     result  => {

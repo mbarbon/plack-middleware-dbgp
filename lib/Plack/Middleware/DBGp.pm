@@ -28,7 +28,7 @@ use constant {
 
 our @ISA;
 
-my ($autostart, $cookie_expiration);
+my ($autostart, $idekey, $cookie_expiration);
 
 # Unable to connect to Unix socket: /var/run/dbgp/uwsgi (No such file or directory)
 # Running program outside the debugger...
@@ -50,6 +50,7 @@ sub import {
     };
 
     $autostart = $args{autostart} // 1;
+    $idekey = $args{ide_key};
     $cookie_expiration = $args{cookie_expiration} // 3600;
 
     my %options = (
@@ -136,6 +137,8 @@ sub call {
 
     my ($stop_session, $start_session, $debug_idekey);
     if ($autostart) {
+        $ENV{DBGP_IDEKEY} = $idekey if defined $idekey;
+
         reopen_dbgp_connection();
     } else {
         my $req = Plack::Request->new($env);
