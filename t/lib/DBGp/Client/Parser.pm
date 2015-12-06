@@ -13,6 +13,7 @@ use DBGp::Client::Response::StackGet;
 use DBGp::Client::Response::Eval;
 use DBGp::Client::Response::Typemap;
 use DBGp::Client::Response::ContextGet;
+use DBGp::Client::Response::BreakpointSet;
 
 my $parser = XML::Parser->new(Style => 'EasyTree');
 
@@ -68,6 +69,8 @@ sub parse {
             return bless $root, 'DBGp::Client::Response::Typemap';
         } elsif ($cmd eq 'context_get') {
             return bless $root, 'DBGp::Client::Response::ContextGet';
+        } elsif ($cmd eq 'breakpoint_set') {
+            return bless $root, 'DBGp::Client::Response::BreakpointSet';
         } else {
             require Data::Dumper;
 
