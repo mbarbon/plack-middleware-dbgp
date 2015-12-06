@@ -1,5 +1,12 @@
 Revision history for Plack-Middleware-DBGp
 
+0.03      2015-12-06 20:12:53 CET
+
+    - Add Xdebug-compatible XDEBUG_SESSION cookie and
+      XDEBUG_SESSION_START/STOP parameters
+    - Keep executing the current request if the debugger disconnects
+    - Optionally use Enbugger to make all files debuggable
+
 0.02      2015-11-26 17:04:28 CET
 
     - First public release
