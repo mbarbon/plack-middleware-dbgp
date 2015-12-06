@@ -43,7 +43,11 @@ sub _trap_connection_warnings {
 sub import {
     my ($class, %args) = @_;
 
-    $args{komodo_debug_client_path} // die "Parameter 'komodo_debug_client_path' is mandatory";
+    $args{komodo_debug_client_path} //= do {
+        require Devel::Debug::DBGp;
+
+        Devel::Debug::DBGp->debugger_path;
+    };
 
     $autostart = $args{autostart} // 1;
     $cookie_expiration = $args{cookie_expiration} // 3600;
