@@ -103,11 +103,18 @@ EOT
         join " ", map +(sprintf "%s=%s", $_, $options{$_}),
                       sort keys %options;
 
+    if ($args{enbugger}) {
+        require Enbugger;
+
+        Enbugger->load_source;
+    }
+
     unshift @INC, $args{komodo_debug_client_path};
     {
         local $SIG{__WARN__} = \&_trap_connection_warnings;
         require 'perl5db.pl';
     }
+
     $^P = DEBUG_PREPARE_FLAGS;
 
     require Plack::Middleware;

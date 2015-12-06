@@ -7,10 +7,15 @@ META.json
 t/001_load.t
 t/010_basic.t
 t/050_session.t
+t/080_enbugger.t
+t/082_no_enbugger.t
 t/apps/base.psgi
+t/apps/enbugger.psgi
 t/apps/lib/App/Base.pm
+t/apps/no_enbugger.psgi
 t/apps/session.psgi
 t/lib/DBGp/Client/Parser.pm
+t/lib/DBGp/Client/Response/BreakpointSet.pm
 t/lib/DBGp/Client/Response/ContextGet.pm
 t/lib/DBGp/Client/Response/Error.pm
 t/lib/DBGp/Client/Response/Eval.pm
