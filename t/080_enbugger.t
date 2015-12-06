@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use if !eval { require Enbugger }, 'Test::More' => skip_all => 'Enbugger not installed';
 use t::lib::Test;
 
 start_listening();
