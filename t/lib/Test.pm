@@ -18,10 +18,9 @@ BEGIN {
 }
 
 use Test::More;
-use Test::Differences;
+use Test::DBGp;
 use HTTP::CookieJar;
 
-use IO::Socket::INET;
 use IPC::Open3 ();
 use MIME::Base64 qw(encode_base64);
 use Storable qw(thaw);
@@ -32,7 +31,7 @@ require feature;
 
 our @EXPORT = (
   @Test::More::EXPORT,
-  @Test::Differences::EXPORT,
+  @Test::DBGp::EXPORT,
   qw(
         abs_uri
         run_app
@@ -60,7 +59,7 @@ sub import {
     goto &Test::Builder::Module::import;
 }
 
-my ($LISTEN, $CLIENT, $INIT, $SEQ, $PORT, $HTTP_PORT);
+my ($HTTP_PORT);
 my ($PID, $CHILD_IN, $CHILD_OUT, $CHILD_ERR);
 my ($REQ_PID, $REQ_OUT, $REQ_ERR);
 
@@ -68,31 +67,8 @@ sub abs_uri {
     return 'file://' . Cwd::abs_path($_[0]);
 }
 
-sub start_listening {
-    return if $LISTEN;
-
-    for my $port (!$PORT ? (17000 .. 19000) : ($PORT)) {
-        $LISTEN = IO::Socket::INET->new(
-            Listen    => 1,
-            LocalAddr => '127.0.0.1',
-            LocalPort => $port,
-            Proto     => 'tcp',
-            Timeout   => 1,
-        );
-        next unless $LISTEN;
-
-        $PORT = $port;
-        last;
-    }
-
-    die "Unable to open a listening socket in the 17000 - 19000 port range"
-        unless $PORT;
-}
-
-sub stop_listening {
-    close $LISTEN;
-    $LISTEN = undef;
-}
+sub start_listening { dbgp_listen() }
+sub stop_listening { dbgp_stop_listening() }
 
 sub run_app {
     my ($app) = @_;
@@ -114,7 +90,7 @@ sub run_app {
     die "Unable to find a free port for HTTP in the 17000 - 19000 port range"
         unless $HTTP_PORT;
 
-    local $ENV{DEBUGGER_PORT} = $PORT;
+    local $ENV{DEBUGGER_PORT} = dbgp_listening_port();
     $PID = IPC::Open3::open3(
         $CHILD_IN, $CHILD_OUT, $CHILD_ERR,
         $^X, ($INC{'blib.pm'} ? ('-Mblib') : ()),
@@ -204,58 +180,21 @@ sub response_is {
     }
 }
 
-sub wait_connection {
-    my $conn = $LISTEN->accept;
+sub wait_connection { dbgp_wait_connection($PID, @_) }
+sub discard_connection { dbgp_wait_connection($PID, 'reject') }
 
-    die "Did not receive any connection from the debugged program: ", $LISTEN->error
-        unless $conn;
-
-    require DBGp::Client::Stream;
-    require DBGp::Client::Parser;
-
-    $CLIENT = DBGp::Client::Stream->new(socket => $conn);
-
-    # consume initialization line
-    $INIT = DBGp::Client::Parser::parse($CLIENT->get_line);
-
-    die "We got connected with the wrong debugged program"
-        if $INIT->appid != $PID || $INIT->language ne 'Perl';
-}
-
-sub discard_connection {
-    $LISTEN->accept;
-}
-
-sub send_command {
-    my ($command, @args) = @_;
-
-    $CLIENT->put_line($command, '-i', ++$SEQ, @args);
-    my $res = DBGp::Client::Parser::parse($CLIENT->get_line);
-
-    die 'Mismatched transaction IDs: got ', $res->transaction_id,
-            ' expected ', $SEQ
-        if $res && $res->transaction_id != $SEQ;
-
-    return $res;
-}
+sub send_command { dbgp_send_command(@_) }
 
 sub init_is {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    my ($expected) = @_;
-    my $cmp = _extract_command_data($INIT, $expected);
-
-    eq_or_diff($cmp, $expected);
+    dbgp_init_is(@_);
 }
 
 sub command_is {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    my ($command, $expected) = @_;
-    my $res = send_command(@$command);
-    my $cmp = _extract_command_data($res, $expected);
-
-    eq_or_diff($cmp, $expected);
+    dbgp_command_is(@_);
 }
 
 sub eval_value_is {
@@ -265,29 +204,6 @@ sub eval_value_is {
     my $res = send_command('eval', encode_base64($expr));
 
     is($res->result->value, $value);
-}
-
-sub _extract_command_data {
-    my ($res, $expected) = @_;
-
-    if (!ref $expected) {
-        return $res;
-    } elsif (ref $expected eq 'HASH') {
-        return {
-            map {
-                $_ => _extract_command_data($res->$_, $expected->{$_})
-            } keys %$expected
-        };
-    } elsif (ref $expected eq 'ARRAY') {
-        return $res if ref $res ne 'ARRAY';
-        return [
-            map {
-                _extract_command_data($res->[$_], $expected->[$_])
-            } 0 .. $#$expected
-        ];
-    } else {
-        die "Can't extract ", ref $expected, "value";
-    }
 }
 
 sub _cleanup {
