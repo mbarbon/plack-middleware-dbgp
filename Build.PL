@@ -17,8 +17,7 @@ my $build = Module::Build->new(
     },
     test_requires => {
         'Test::Differences'         => 0,
-        'XML::Parser'               => 0,
-        'XML::Parser::EasyTree'     => 0,
+        'DBGp::Client'              => 0,
         'HTTP::CookieJar'           => 0,
     },
 );
