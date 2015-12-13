@@ -4,6 +4,145 @@ package Plack::Middleware::DBGp;
 
 Plack::Middleware::DBGp - interactive debugging for Plack applications
 
+=head1 SYNOPSIS
+
+    # should be the first/one of the first modules to be loaded
+    use Plack::Middleware::DBGp (
+        remote_host => "localhost:9000",
+    );
+    use Plack::Builder;
+
+    builder {
+        enable "DBGp";
+        $app;
+    };
+
+=head1 DESCRIPTION
+
+Add interactive debugging support via the
+L<DBGp protocol|http://xdebug.org/docs-dbgp.php> to L<Plack> applications.
+
+When debugging, the debugger running inside the application
+establishes a connection to an external DBGp client (typically a GUI
+program) that allows to inspect the program state from the outside.
+
+C<Plack::Middleware::DBGp> has been tested with
+This implementation has been tested with L<pugdebug|http://pugdebug.com>,
+L<Sublime Text Xdebug plugin|https://github.com/martomo/SublimeTextXdebug>
+and L<Vim VDebug plugin|https://github.com/joonty/vdebug>.
+
+=head1 LOADING
+
+The Perl debugger needs to be enabled early during compilation,
+therefore this middleware needs to be loaded explicitly near the top
+of the main F<.psgi> file of the application. All files loaded before
+the debugger won't be debuggable (unless L<Enbugger> is present and
+enabled).
+
+Supported parameters
+
+=over 4
+
+=item remote_host
+
+    use Plack::Middleware::DBGp (
+        remote_host => "host:port",
+    );
+
+Hostname/port the debugger should connect to.
+
+=item user, client_dir, client_socket
+
+    use Plack::Middleware::DBGp (
+        user            => 'Unix login',
+        client_dir      => '/path/to/dir',
+        client_socket   => '/path/to/dir/and_socket',
+    );
+
+Unix-domain socket the debugger should connect to. The directory must
+be present, must be owned by the specified user and the group under
+which the web erver is running, and it must not be
+world-readable/writable.
+
+=item autostart
+
+    use Plack::Middleware::DBGp (
+        autostart   => [0|1],
+    );
+
+Whether the debugger should try connect to the debugger client on
+every request; see also L</HTTP INTERFACE>.
+
+=item ide_key
+
+    use Plack::Middleware::DBGp (
+        ide_key     => "DBGp ide key",
+    );
+
+The IDE key, as defined by the DBGp protocol. Only used when
+C<autostart> is in effect.
+
+=item cookie_expiration
+
+    use Plack::Middleware::DBGp (
+        cookie_expiration   => <seconds>,
+    );
+
+C<XDEBUG_SESSION> cookie expiration time, in seconds. See L</HTTP INTERFACE>.
+
+=item debug_startup
+
+    use Plack::Middleware::DBGp (
+        debug_startup   => [0|1],
+    );
+
+Whether the debugger should try to connect to the debugger client as
+soon as it is loaded, during application startup.
+
+=item log_path
+
+    use Plack::Middleware::DBGp (
+        log_path    => '/path/to/debugger.log',
+    );
+
+When set, will write debugging information from the debugger to the
+sepcified path.
+
+=item enbugger
+
+    use Plack::Middleware::DBGp (
+        enbugger    => [0|1],
+    );
+
+Use L<Enbugger>. At the moment it only enables debugging all files,
+even the ones loaded before C<Plack::Middleware::DBGp>.
+
+=item debug_client_path
+
+    use Plack::Middleware::DBGp (
+        debug_client_path   => '/path/to/dbgp-enabled/debugger',
+    );
+
+Use a L<Devel::Debug::DBGp> installed outside the default module
+search path.
+
+=back
+
+=head1 HTTP INTERFACE
+
+When C<autostart> is disabled, C<Plack::Middleware::DBGp> emulates the
+L<Xdebug browser
+session|http://xdebug.org/docs/remote#browser_session> interface.
+
+The C<XDEBUG_SESSION_START=idekey> GET/POST parameter starts a
+debugging session and sets the C<XDEBUG_SESSION> cookie.
+
+When the C<XDEBUG_SESSION> cookie is set, the debugger tries to
+connect to the debugger client passing the sepcified IDE key.
+
+The C<XDEBUG_SESSION_STOP> GET/POST parameter clears the
+C<XDEBUG_SESSION> cookie.
+
 =cut
 
 use strict;
@@ -204,3 +343,18 @@ sub call {
 }
 
 1;
+
+__END__
+
+=head1 AUTHOR
+
+Mattia Barbon <mbarbon@cpan.org>
+
+=head1 LICENSE
+
+Copyright (c) 2015 Mattia Barbon. All rights reserved.
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut
