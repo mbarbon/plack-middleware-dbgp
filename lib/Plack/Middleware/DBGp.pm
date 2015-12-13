@@ -43,7 +43,7 @@ sub _trap_connection_warnings {
 sub import {
     my ($class, %args) = @_;
 
-    $args{komodo_debug_client_path} //= do {
+    $args{debug_client_path} //= do {
         require Devel::Debug::DBGp;
 
         Devel::Debug::DBGp->debugger_path;
@@ -110,7 +110,7 @@ EOT
         Enbugger->load_source;
     }
 
-    unshift @INC, $args{komodo_debug_client_path};
+    unshift @INC, $args{debug_client_path};
     {
         local $SIG{__WARN__} = \&_trap_connection_warnings;
         require 'perl5db.pl';
