@@ -64,6 +64,9 @@ be present, must be owned by the specified user and the group under
 which the web server is running, and it must not be
 world-readable/writable.
 
+The C<user> and C<client_dir> parameters are optional, and used for
+extra sanity checks.
+
 =item autostart
 
     use Plack::Middleware::DBGp (
@@ -182,6 +185,9 @@ sub _trap_connection_warnings {
 sub import {
     my ($class, %args) = @_;
 
+    die "Specify either 'remote_host' or 'client_socket'"
+        unless $args{remote_host} || $args{client_socket};
+
     $args{debug_client_path} //= do {
         require Devel::Debug::DBGp;
 
@@ -200,14 +206,13 @@ sub import {
     );
 
     if (!$args{remote_host}) {
-        for my $required (qw(user client_dir client_socket)) {
-            $args{$required} // die "Parameter '$required' is mandatory unless 'remote_host' is used";
-        }
-
         my $error;
         my ($user, $dbgp_client_dir) = @args{qw(user client_dir)};
         my $group = getgrnam($));
-        if (-d $dbgp_client_dir) {
+
+        if (!$user || !$dbgp_client_dir) {
+            # pass through and hope for the best
+        } elsif (-d $dbgp_client_dir) {
             my ($mode, $uid, $gid) = (stat($dbgp_client_dir))[2, 4, 5];
             my $user_id = getpwnam($user) // die "Can't retrieve the UID for $user";
 
