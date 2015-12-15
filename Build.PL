@@ -16,7 +16,7 @@ my $build = Module::Build->new(
         'Module::Build' => 0.42,
     },
     test_requires => {
-        'Test::DBGp'                => 0,
+        'Test::DBGp'                => '0.02',
         'DBGp::Client'              => 0,
         'HTTP::CookieJar'           => 0,
     },

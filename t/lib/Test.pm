@@ -91,6 +91,7 @@ sub run_app {
         unless $HTTP_PORT;
 
     local $ENV{DEBUGGER_PORT} = dbgp_listening_port();
+    local $ENV{DEBUGGER_PATH} = dbgp_listening_path();
     $PID = IPC::Open3::open3(
         $CHILD_IN, $CHILD_OUT, $CHILD_ERR,
         $^X, ($INC{'blib.pm'} ? ('-Mblib') : ()),
