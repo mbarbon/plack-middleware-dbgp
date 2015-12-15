@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-DBGp
 
+0.05      2015-12-15 20:18:20 CET
+
+    - Run tests using an Unix-domain socket on non-Windows platforms
+
 0.04      2015-12-06 23:01:05 CET
 
     - Skip Enbugger test when Enbugger is not installed
