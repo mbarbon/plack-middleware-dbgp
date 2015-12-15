@@ -61,7 +61,7 @@ Hostname/port the debugger should connect to.
 
 Unix-domain socket the debugger should connect to. The directory must
 be present, must be owned by the specified user and the group under
-which the web erver is running, and it must not be
+which the web server is running, and it must not be
 world-readable/writable.
 
 =item autostart
