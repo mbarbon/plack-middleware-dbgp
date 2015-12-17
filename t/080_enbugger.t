@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
-use if !eval { require Enbugger }, 'Test::More' => skip_all => 'Enbugger not installed';
+use if !eval { require Enbugger; Enbugger->VERSION(2.014) },
+    'Test::More' => skip_all => 'Enbugger 2.014 not installed';
 use t::lib::Test;
 
 start_listening();

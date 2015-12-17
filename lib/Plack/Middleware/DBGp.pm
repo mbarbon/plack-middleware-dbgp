@@ -251,6 +251,7 @@ EOT
     if ($args{enbugger}) {
         require Enbugger;
 
+        Enbugger->VERSION(2.014);
         Enbugger->load_source;
     }
 
