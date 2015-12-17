@@ -9,6 +9,7 @@ my $build = Module::Build->new(
     module_name => 'Plack::Middleware::DBGp',
     license     => 'perl',
     requires    => {
+        'perl'                  => '5.10.0',
         'Plack'                 => '1.0031',
         'Devel::Debug::DBGp'    => '0.02',
     },

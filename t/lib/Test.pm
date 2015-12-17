@@ -54,7 +54,7 @@ sub import {
 
     strict->import;
     warnings->import;
-    feature->import(':5.12');
+    feature->import(':5.10');
 
     goto &Test::Builder::Module::import;
 }
