@@ -92,6 +92,7 @@ sub run_app {
 
     local $ENV{DEBUGGER_PORT} = dbgp_listening_port();
     local $ENV{DEBUGGER_PATH} = dbgp_listening_path();
+    $CHILD_ERR = gensym;
     $PID = IPC::Open3::open3(
         $CHILD_IN, $CHILD_OUT, $CHILD_ERR,
         $^X, ($INC{'blib.pm'} ? ('-Mblib') : ()),
@@ -102,6 +103,8 @@ sub run_app {
 }
 
 sub wait_app {
+    die "Call run_app() first" unless $PID;
+
     for (1 .. 5) {
         eval {
             IO::Socket::INET->new(
@@ -115,7 +118,16 @@ sub wait_app {
         return;
     }
 
-    die "application did not start up in time";
+    kill 9, $PID;
+    waitpid $PID, 0 unless $^O eq 'MSWin32';
+
+    local $/;
+    my $out = readline $CHILD_OUT;
+    my $err = readline $CHILD_ERR;
+
+    die "application did not start up in time\n",
+        "STDOUT:\n$out\n" x !!$out,
+        "STDERR:\n$err\n" x !!$err;
 }
 
 sub send_request {
