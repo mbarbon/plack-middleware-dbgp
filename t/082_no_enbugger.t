@@ -7,10 +7,10 @@ run_app('t/apps/no_enbugger.psgi');
 
 send_request('/');
 wait_connection();
-command_is([qw(breakpoint_set -t line -f file://t/apps/no_enbugger.psgi -n 11)], {
+command_is([qw(breakpoint_set -t line -f file://t/apps/no_enbugger.psgi -n 15)], {
     code    => 202,
     apperr  => 4,
-    message => "Line 11 isn't breakable",
+    message => "Line 15 isn't breakable",
 });
 command_is(['run'], {
     status  => 'stopped',
