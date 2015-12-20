@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+use if do { require Config; $Config::Config{usethreads} },
+    'Test::More' => 'skip_all' => 'does not apply to threaded Perls';
 use t::lib::Test;
 
 start_listening();

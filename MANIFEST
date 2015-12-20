@@ -9,6 +9,7 @@ t/010_basic.t
 t/050_session.t
 t/080_enbugger.t
 t/082_no_enbugger.t
+t/083_no_enbugger_threads.t
 t/apps/base.psgi
 t/apps/enbugger.psgi
 t/apps/lib/App/Base.pm
