@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-DBGp
 
+0.08      2015-12-20 16:12:38 CET
+
+    - Test fixes for threaded Perls
+
 0.07      2015-12-19 11:48:39 CET
 
     - More test fixes
