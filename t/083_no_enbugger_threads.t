@@ -5,11 +5,11 @@ use if do { require Config; !$Config::Config{usethreads} },
 use t::lib::Test;
 
 start_listening();
-run_app('t/apps/enbugger.psgi');
+run_app('t/apps/no_enbugger.psgi');
 
 send_request('/');
 wait_connection();
-command_is([qw(breakpoint_set -t line -f file://t/apps/enbugger.psgi -n 15)], {
+command_is([qw(breakpoint_set -t line -f file://t/apps/no_enbugger.psgi -n 15)], {
     state   => 'enabled',
     id      => 0,
 });
