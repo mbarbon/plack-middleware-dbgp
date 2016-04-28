@@ -214,7 +214,7 @@ sub import {
             # pass through and hope for the best
         } elsif (-d $dbgp_client_dir) {
             my ($mode, $uid, $gid) = (stat($dbgp_client_dir))[2, 4, 5];
-            my $user_id = getpwnam($user) // die "Can't retrieve the UID for $user";
+            my $user_id = getpwnam($user) || die "Can't retrieve the UID for $user";
 
             $error = sprintf "invalid UID %d, should be %d", $uid, $user_id
                 unless $uid == $user_id;
