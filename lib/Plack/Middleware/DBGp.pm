@@ -208,7 +208,7 @@ sub import {
     if (!$args{remote_host}) {
         my $error;
         my ($user, $dbgp_client_dir) = @args{qw(user client_dir)};
-        my $group = getgrnam($));
+        my $group = getgrnam($)) || (split / /, $))[0];
 
         if (!$user || !$dbgp_client_dir) {
             # pass through and hope for the best
