@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-DBGp
 
+0.10      2016-04-29 10:02:04 CEST
+
+    - Fix warning when numeric GID does not resolve to a name
+
 0.09      2015-12-21 14:36:05 CET
 
     - Test fixes for threaded Perls (again)
