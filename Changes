@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-DBGp
 
+0.11      2016-07-31 17:23:07 CEST
+
+    - Allow passing multiple paths to debug_client_path
+
 0.10      2016-04-29 10:02:04 CEST
 
     - Fix warning when numeric GID does not resolve to a name
