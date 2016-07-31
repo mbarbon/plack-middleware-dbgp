@@ -255,7 +255,8 @@ EOT
         Enbugger->load_source;
     }
 
-    unshift @INC, $args{debug_client_path};
+    my $inc_path = $args{debug_client_path};
+    unshift @INC, ref $inc_path ? @$inc_path : $inc_path;
     {
         local $SIG{__WARN__} = \&_trap_connection_warnings;
         require 'perl5db.pl';
