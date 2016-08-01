@@ -3,6 +3,9 @@
 use t::lib::Test;
 
 use MIME::Base64 qw(encode_base64);
+use Devel::Debug::DBGp;
+
+my $DBGP_VERSION = Devel::Debug::DBGp->VERSION;
 
 start_listening();
 run_app('t/apps/base.psgi');
@@ -18,7 +21,7 @@ command_is(['eval', encode_base64('$env->{"QUERY_STRING"}')], {
     result  => {
         name        => '$env->{"QUERY_STRING"}',
         fullname    => '$env->{"QUERY_STRING"}',
-        type        => 'string',
+        type        => ($DBGP_VERSION ge '0.13' ? 'undef' : 'string'),
         constant    => '0',
         children    => '0',
         value       => undef,
