@@ -151,7 +151,7 @@ C<XDEBUG_SESSION> cookie.
 use strict;
 use warnings;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use constant {
     DEBUG_SINGLE_STEP_ON        =>  0x20,
