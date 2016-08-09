@@ -11,13 +11,13 @@ my $build = Module::Build->new(
     requires    => {
         'perl'                  => '5.10.0',
         'Plack'                 => '1.0031',
-        'Devel::Debug::DBGp'    => '0.02',
+        'Devel::Debug::DBGp'    => '0.17',
     },
     configure_requires => {
         'Module::Build' => 0.42,
     },
     test_requires => {
-        'Test::DBGp'                => '0.02',
+        'Test::DBGp'                => '0.07',
         'DBGp::Client'              => 0,
         'HTTP::CookieJar'           => 0,
     },
