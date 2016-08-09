@@ -11,7 +11,7 @@ my $build = Module::Build->new(
     requires    => {
         'perl'                  => '5.10.0',
         'Plack'                 => '1.0031',
-        'Devel::Debug::DBGp'    => '0.17',
+        'Devel::Debug::DBGp'    => '0.18',
     },
     configure_requires => {
         'Module::Build' => 0.42,
